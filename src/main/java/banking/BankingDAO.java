@@ -52,23 +52,34 @@ public class BankingDAO {
 			
 			myConnection.setAutoCommit(false); // On démarre une transaction
 			try {
-				// On débite le 1° client
+                                
+                                // On débite le 1° client
 				statement.setFloat( 1, amount * -1);
 				statement.setInt(2, fromID);
 				int numberUpdated = statement.executeUpdate();
-
+                                
+                                if(numberUpdated != 1){
+                                    throw new IllegalArgumentException(
+                                            "Le compte débiteur n'existe pas");
+                                }
+                                
 				// On crédite le 2° client
 				statement.clearParameters();
 				statement.setFloat( 1, amount);
 				statement.setInt(2, toID);
 				numberUpdated = statement.executeUpdate();
 
+                                if(numberUpdated != 1){
+                                    throw new IllegalArgumentException(
+                                            "Le compte créditeur n'existe pas");
+                                }
+                                
 				// Tout s'est bien passé, on peut valider la transaction
 				myConnection.commit();
 			} catch (Exception ex) {
 				myConnection.rollback(); // On annule la transaction
-				throw ex;       
-			} finally {
+				throw ex; 
+                        } finally {
 				 // On revient au mode de fonctionnement sans transaction
 				myConnection.setAutoCommit(true);				
 			}
